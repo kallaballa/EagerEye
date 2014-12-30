@@ -15,7 +15,7 @@
 
 namespace eagereye {
 
-class Ship;
+class Specimen;
 class Population;
 
 using std::deque;

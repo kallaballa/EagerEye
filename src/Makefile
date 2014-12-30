@@ -4,7 +4,7 @@ ifdef JAVASCRIPT
 TARGET := eagereye.html
 endif
 
-SRCS  := brain_fann.cpp error.cpp genetic.cpp population.cpp ship.cpp util.cpp eagereye.cpp
+SRCS  := brain_fann.cpp error.cpp genetic.cpp population.cpp specimen.cpp util.cpp eagereye.cpp
 CXXFLAGS +=
 LIBS += -lpthread
 LDFLAGS += 

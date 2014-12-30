@@ -32,7 +32,7 @@ struct BrainLayout  {
 #endif
 };
 
-class Ship;
+class Specimen;
 class Population;
 
 template<typename Tweight> class BasicBrain {

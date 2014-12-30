@@ -1,4 +1,4 @@
-#include "ship.hpp"
+#include "specimen.hpp"
 #include "population.hpp"
 #include "error.hpp"
 #include <cstdlib>
@@ -15,12 +15,12 @@ namespace eagereye {
 
 using namespace cv;
 
-Ship::Ship(Brain* brain) :
+Specimen::Specimen(Brain* brain) :
     brain_(brain),
     fitness_(0) {
 }
 
-void Ship::setBrain(Brain* b) {
+void Specimen::setBrain(Brain* b) {
 	CHECK(brain_ == NULL);
 	brain_ = b;
 }
@@ -62,7 +62,7 @@ WordStats make_word_stats(const std::string& word) {
 }
 
 
-void Ship::think(const std::string& candidate, bool isPass) {
+void Specimen::think(const std::string& candidate, bool isPass) {
   CHECK(brain_->layout_.numOutputs == 1);
   CHECK(!candidate.empty());
 
@@ -90,18 +90,18 @@ void Ship::think(const std::string& candidate, bool isPass) {
 	fitness_ = 2.0 - std::fabs(expected - brain_->outputs_[0]);
 }
 
-Ship Ship::makeChild() const {
+Specimen Specimen::makeChild() const {
 	CHECK(brain_ != NULL);
-	Ship child;
+	Specimen child;
 	Brain* fresh  = new Brain();
 	fresh->initialize(brain_->layout_);
 	child.setBrain(fresh);
 	return child;
 }
 
-Ship Ship::clone() const {
+Specimen Specimen::clone() const {
 	CHECK(brain_ != NULL);
-	Ship child;
+	Specimen child;
 	Brain* fresh  = new Brain();
 	fresh->initialize(brain_->layout_);
 	child.setBrain(fresh);
@@ -113,7 +113,7 @@ Ship Ship::clone() const {
 	return child;
 }
 
-bool Ship::operator<(const Ship& other) const {
+bool Specimen::operator<(const Specimen& other) const {
 	return (this->fitness_ < other.fitness_);
 }
 

@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
       if(candidate.empty())
         continue;
 
-      for(ee::Ship& s : team) {
+      for(ee::Specimen& s : team) {
         s.brain_->reset();
         s.think(candidate, isPass);
       }
@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
 
       ee::Population newTeam = pool.epoch(team);
 
-      for(ee::Ship& s : team) {
+      for(ee::Specimen& s : team) {
         s.brain_->destroy();
       }
 

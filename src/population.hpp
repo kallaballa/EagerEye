@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <iostream>
-#include "ship.hpp"
+#include "specimen.hpp"
 #include "error.hpp"
 
 #ifndef _NO_SERIALIZE
@@ -35,7 +35,7 @@ struct PopulationLayout {
 
 PopulationLayout make_default_population_layout();
 
-class Population: public vector<Ship> {
+class Population: public vector<Specimen> {
 #ifndef _NO_SERIALIZE
 	  friend class boost::serialization::access;
 #endif
@@ -80,7 +80,7 @@ public:
 	Population& operator=(const Population& other) {
 		layout_ = other.layout_;
 		stats_ = other.stats_;
-		vector<Ship>::operator=(other);
+		vector<Specimen>::operator=(other);
 		return *this;
 	}
 
@@ -88,7 +88,7 @@ public:
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version) {
 	  ar & layout_;
-	  ar & *((vector<Ship>*)this);
+	  ar & *((vector<Specimen>*)this);
 	}
 #endif
 };
@@ -105,7 +105,7 @@ inline void scale_population(Population& team, size_t size) {
 		team.resize(size);
 	} else if (team.size() < size) {
 		while (team.size() < size) {
-			for (Ship& s : team) {
+			for (Specimen& s : team) {
 				team.push_back(s.clone());
 				if (team.size() == size)
 					break;

@@ -15,7 +15,7 @@ namespace eagereye {
 typedef BrainFann Brain;
 using std::numeric_limits;
 
-class Ship {
+class Specimen {
 #ifndef _NO_SERIALIZE
 	friend class boost::serialization::access;
 #endif
@@ -30,16 +30,16 @@ public:
 	  ar & brain_;
 	}
 #endif
-	Ship(Brain* brain = NULL);
-	~Ship() {
+	Specimen(Brain* brain = NULL);
+	~Specimen() {
 	};
 
 	void setBrain(Brain* b);
 
 	void think(const std::string& candidate, bool isPass);
-	Ship makeChild() const;
-	Ship clone() const;
-	bool operator<(const Ship& other) const;
+	Specimen makeChild() const;
+	Specimen clone() const;
+	bool operator<(const Specimen& other) const;
 };
 
 } /* namespace neurocid */

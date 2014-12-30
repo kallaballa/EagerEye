@@ -14,7 +14,6 @@ class Population;
 class GeneticPool;
 struct GeneticLayout;
 struct BrainLayout;
-struct ShipLayout;
 struct PopulationLayout;
 
 Population make_population(PopulationLayout& pl);

@@ -6,12 +6,11 @@
  */
 
 #include "util.hpp"
-#include "ship.hpp"
+#include "specimen.hpp"
 #include "population.hpp"
 #include "genetic.hpp"
 #include "brain_fann.hpp"
 #include <cstdlib>
-
 
 namespace eagereye {
 
@@ -21,7 +20,7 @@ Population make_population(PopulationLayout& pl) {
 	Population p;
 	p.layout_ = pl;
 	for(size_t i = 0; i < pl.size_; i++) {
-		Ship t;
+		Specimen t;
 		Brain* b = new Brain();
 		b->initialize(pl.bl_);
 		b->randomize();
