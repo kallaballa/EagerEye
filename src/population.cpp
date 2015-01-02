@@ -5,13 +5,13 @@ namespace eagereye {
 
 PopulationLayout make_default_population_layout() {
 	return {
-		100, // size_
+		20, // size_
 		//BrainLayout
 		{
-		  6,// inputs
+		  8,// inputs
 			1,  // outputs
 			5,  // layers
-			6, // neurons per hidden layer
+			8, // neurons per hidden layer
 		},
 	};
 }

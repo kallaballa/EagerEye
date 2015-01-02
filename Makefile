@@ -1,7 +1,7 @@
 CXX      := g++
 CXXFLAGS := -fno-strict-aliasing -std=c++0x -pedantic -Wall -I../fann/src/include 
 LDFLAGS  :=  -L/opt/local/lib -L../fann/src/
-LIBS     := -lm -lfann -lopencv_core -lopencv_highgui -lopencv_imgproc
+LIBS     := -lm -lfann -lopencv_core -lopencv_highgui -lopencv_imgproc 
 .PHONY: all release debian-release info debug clean debian-clean distclean 
 NVCC     := /usr/local/cuda/bin/nvcc
 NVCC_HOST_CXX := g++-4.6
@@ -99,8 +99,7 @@ debian-clean:
 	${MAKE} -C src/ -${MAKEFLAGS} CXX=${CXX} NVCC="${NVCC}" NVCC_HOST_CXX="${NVCC_HOST_CXX}" NVCC_CXXFLAGS="${NVCC_CXXFLAGS}" clean
 
 install: ${TARGET}
-	echo not implemented
+	${MAKE} -C src/ -${MAKEFLAGS} CXX=${CXX} NVCC="${NVCC}" NVCC_HOST_CXX="${NVCC_HOST_CXX}" NVCC_CXXFLAGS="${NVCC_CXXFLAGS}" install
 
 distclean:
-	echo not implemented
-
+	${MAKE} -C src/ -${MAKEFLAGS} CXX=${CXX} NVCC="${NVCC}" NVCC_HOST_CXX="${NVCC_HOST_CXX}" NVCC_CXXFLAGS="${NVCC_CXXFLAGS}" distclean

@@ -4,6 +4,7 @@
 #include <cstring>
 #include <iostream>
 #include "brain_fann.hpp"
+#include "markov_chain.hpp"
 
 #ifndef _NO_SERIALIZE
 #include <boost/archive/binary_iarchive.hpp>
@@ -36,7 +37,7 @@ public:
 
 	void setBrain(Brain* b);
 
-	void think(const std::string& candidate, bool isPass);
+	void think(const std::string& candidate, bool isPass, MarkovChain& mc);
 	Specimen makeChild() const;
 	Specimen clone() const;
 	bool operator<(const Specimen& other) const;

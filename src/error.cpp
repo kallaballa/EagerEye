@@ -82,7 +82,7 @@ void print_stacktrace(FILE *out, unsigned int max_frames)
 		fprintf(out, "  %s : %s ",
 			symbollist[i], funcname);
 			char syscom[256];
-			sprintf(syscom,"addr2line %p -e tests/tests", addrlist[i]);
+			sprintf(syscom,"addr2line %p -e src/eagereye", addrlist[i]);
 			system(syscom);
 	    }
 	    else {

@@ -4,10 +4,12 @@ ifdef JAVASCRIPT
 TARGET := eagereye.html
 endif
 
-SRCS  := brain_fann.cpp error.cpp genetic.cpp population.cpp specimen.cpp util.cpp eagereye.cpp
+SRCS  := brain_fann.cpp error.cpp genetic.cpp population.cpp specimen.cpp util.cpp eagereye.cpp markov_chain.cpp
 CXXFLAGS +=
 LIBS += -lpthread
 LDFLAGS += 
+DESTDIR :=/
+PREFIX :=/usr/local/
 
 #precompiled headers
 HEADERS := 
@@ -38,13 +40,13 @@ ${GCH}: %.gch: ${HEADERS}
 	${CXX} ${CXXFLAGS} -o $@ -c ${@:.gch=.h}
 
 install:
-	mkdir -p ${DESTDIR}/${PREFIX}
-	cp ${TARGET} ${DESTDIR}/${PREFIX}
+	mkdir -p ${DESTDIR}/${PREFIX}/bin
+	cp ${TARGET} ${DESTDIR}/${PREFIX}/bin
 
 uninstall:
-	rm ${DESTDIR}/${PREFIX}/${TARGET}
+	rm ${DESTDIR}/${PREFIX}/bin/${TARGET}
 
 clean:
 	rm -f *~ ${DEPS} ${OBJS} ${GCH} ${TARGET} 
 
-distclean: clean
+distclean: uninstall

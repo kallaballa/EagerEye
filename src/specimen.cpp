@@ -11,6 +11,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
+
 namespace eagereye {
 
 using namespace cv;
@@ -34,7 +35,7 @@ struct WordStats {
   size_t xdigit = 0;
 };
 
-//FIXME make a switch for performance.
+//FIXME
 WordStats make_word_stats(const std::string& word) {
   using namespace std;
 
@@ -61,28 +62,87 @@ WordStats make_word_stats(const std::string& word) {
   return stats;
 }
 
+Mat make_mat(vector<double> v) {
+  Mat mat = Mat(Size(v.size(), 1), CV_64F);
+  size_t cnt = 0;
+  MatIterator_<double> it, end;
 
-void Specimen::think(const std::string& candidate, bool isPass) {
+  for( it = mat.begin<double>(), end = mat.end<double>(); it != end; ++it) {
+    *it = v[cnt++];
+  }
+
+  return mat;
+}
+
+vector <double> make_vector(Mat m) {
+  MatIterator_<double> it, end;
+  vector<double> result;
+  for( it = m.begin<double>(), end = m.end<double>(); it != end; ++it) {
+    result.push_back(*it);
+  }
+  return result;
+}
+
+
+vector<double> make_gradient(const string& word, size_t len) {
+  vector<double> vecWord;
+  for(const unsigned char& c : word) {
+    vecWord.push_back((double) c/127.0);
+  }
+
+  Mat matIn = make_mat(vecWord);
+  Mat matOut;
+  resize(matIn, matOut, Size(len, 1));
+  auto result = make_vector(matOut);
+/*
+  std::cerr << "vecWord:";
+  for (const double& d : vecWord) {
+    std::cerr << d << '\t';
+  }
+  std::cerr << std::endl;
+
+  std::cerr << "result:";
+  for (const double& d : result) {
+    std::cerr << d << '\t';
+  }
+  std::cerr << std::endl;*/
+
+  return result;
+}
+
+void Specimen::think(const std::string& candidate, bool isPass, MarkovChain& mc) {
+  CHECK(candidate.size() < 64);
   CHECK(brain_->layout_.numOutputs == 1);
   CHECK(!candidate.empty());
+  size_t cnt = 0;
+
 
   WordStats stats = make_word_stats(candidate);
-  double len = candidate.length();
+  double len = candidate.size();
   std::vector<double> inputs;
+  inputs.push_back(mc.probability(candidate));
+
   inputs.push_back(1.0 - (((double)stats.alpha / len) * 2.0));
   inputs.push_back(1.0 - (((double)stats.digit / len) * 2.0));
   inputs.push_back(1.0 - (((double)stats.upper / len) * 2.0));
   inputs.push_back(1.0 - (((double)stats.blank / len) * 2.0));
   inputs.push_back(1.0 - (((double)stats.punct / len) * 2.0));
   inputs.push_back(1.0 - (((double)stats.xdigit / len) * 2.0));
+  inputs.push_back(1.0 - (len / 64.0));
 
   for(size_t i = 0; i < inputs.size(); ++i) {
-    if(!(inputs[i] <= 1.0 && inputs[i] >= -1.0)) {
+/*    if(!(inputs[i] <= 1.0 && inputs[i] >= -1.0)) {
       std::cerr << inputs[i] << std::endl;
       CHECK(false);
-    }
-    brain_->inputs_[i] = inputs[i];
+    }*/
+    brain_->inputs_[cnt++] = inputs[i];
   }
+
+  /*auto grad = make_gradient(candidate, 64);
+
+  for(const double& d : grad) {
+    brain_->inputs_[cnt++] = d;
+  }*/
 
   brain_->run();
 
