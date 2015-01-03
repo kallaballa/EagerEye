@@ -22,35 +22,34 @@ using std::vector;
 
 int main(int argc, char** argv) {
   //command line parsing
-  string popFile = "default";
-  size_t gameIterations = 1000;
-  bool runPop = false;
-  bool trainPop = false;
-  bool runMarkov = false;
+  string runPopFile;
+  string trainPopFile;
+  string loadMarkovFile;
+  string genMarkovFile;
+  string runMarkovFile;
 
-#ifndef _NO_PROGRAM_OPTIONS
+  size_t gameIterations = 1000;
+
+  #ifndef _NO_PROGRAM_OPTIONS
   po::options_description genericDesc("Options");
   genericDesc.add_options()
       ("iterations,i", po::value<size_t>(&gameIterations), "Run n iterations")
-      ("run,r", "Load the population and run it on stdin")
-      ("markov,m", "Validate using only the markov chain")
-      ("train,t", "Train the population and save it. ")
+      ("run,r", po::value<string>(&runPopFile), "Load the population and run it on stdin")
+      ("train,t", po::value<string>(&trainPopFile), "Train the population and save it. ")
+      ("gen-markov,g", po::value<string>(&genMarkovFile),"Generate markov chain file")
+      ("load-markov,m", po::value<string>(&loadMarkovFile),"Load the markov chain file")
+      ("run-markov,n", po::value<string>(&runMarkovFile),"Load the markov chain file and validate words only using the markov chain")
       ("help,h", "Produce help message");
 
-  po::options_description hidden("Hidden options");
-  hidden.add_options()("popFile", po::value<string>(&popFile), "popFile");
 
   po::options_description cmdline_options;
-  cmdline_options.add(genericDesc).add(hidden);
-
-  po::positional_options_description p;
-  p.add("popFile", -1);
+  cmdline_options.add(genericDesc);
 
   po::options_description visible;
   visible.add(genericDesc);
 
   po::variables_map vm;
-  po::store(po::command_line_parser(argc, argv).options(cmdline_options).positional(p).run(), vm);
+  po::store(po::command_line_parser(argc, argv).options(cmdline_options).run(), vm);
   po::notify(vm);
 
   if (vm.count("help")) {
@@ -59,14 +58,11 @@ int main(int argc, char** argv) {
     return 0;
   }
 
-  runPop = vm.count("run");
-  trainPop = vm.count("train");
-  runMarkov = vm.count("markov");
 #endif
   ee::ErrorHandler::init(ee::default_error_delegate);
 
-  CHECK(! (runPop && trainPop));
-  CHECK(runPop || trainPop || runMarkov);
+  CHECK(! (runPopFile.size() && trainPopFile.size()));
+  CHECK(! (genMarkovFile.size() && loadMarkovFile.size()));
 
   srand(time(0));
   ee::PopulationLayout pl = ee::make_default_population_layout();
@@ -76,31 +72,45 @@ int main(int argc, char** argv) {
   ee::GeneticPool pool = ee::GeneticPool(gl);
   ee::Population team;
 
-  ee::MarkovChain mc("data/humansample.txt");
+  ee::MarkovChain mc;
+  if(runMarkovFile.size()) {
+    std::cerr << "run markov chain" << std::endl;
+    ifstream is(runMarkovFile);
+    ee::read_markov_chain(mc, is);
+    string line;
+
+    while(std::getline(std::cin, line)) {
+      std::cerr << mc.probability(line) << '\t' << line << std::endl;
+    }
+  }
+
+  if(!loadMarkovFile.size()) {
+    mc.learn("data/americanmix.txt", [](const char& c){ return (bool)c; });
+    if(genMarkovFile.size()) {
+      ofstream os(genMarkovFile);
+      ee::write_markov_chain(mc, os);
+    }
+  } else {
+    ifstream is(loadMarkovFile);
+    ee::read_markov_chain(mc, is);
+  }
+
 
   //either load or create a team
-  if (runPop) {
-    std::ifstream is(popFile);
+  if (runPopFile.size()) {
+    std::ifstream is(runPopFile);
     ee::read_population(0, team, is);
     string line;
     while (std::getline(std::cin, line)) {
       if(line.empty() || line.size() >= 64)
         continue;
 
-      team[0].brain_->reset();
-      team[0].think(line, false, mc);
-      std::cout << std::round(team[0].brain_->outputs_[0]) << "\t" << line << std::endl;
-    }
-  } else if (runMarkov) {
-    std::cerr << "done" << std::endl;
+        team[0].brain_->reset();
+        team[0].think(line, false, mc);
 
-    string line;
-    while (std::getline(std::cin, line)) {
-      if(line.empty() || line.size() >= 64)
-        continue;
-      std::cerr << mc.probability(line) << '\t' << line << std::endl;
+      std::cout << round(team[0].brain_->outputs_[0]) << "\t" << line << std::endl;
     }
-  }else if(trainPop) {
+  } else if(trainPopFile.size()) {
     std::cerr << "Run training" << std::endl;
     team = ee::make_population(pl);
     string line;
@@ -109,7 +119,7 @@ int main(int argc, char** argv) {
       bool isPass = false;
       if(line.at(0) == '1')
         isPass = true;
-      else if(line.at(0) != '0' && line.at(0) != '2')
+      else if(line.at(0) != '0' && line.at(0) != '2' && line.at(0) != '3')
         CHECK(false);
 
       line.erase (0,2);
@@ -117,14 +127,15 @@ int main(int argc, char** argv) {
       if(candidate.empty() || candidate.size() >= 64)
         continue;
 
-      for(ee::Specimen& s : team) {
+     // #pragma omp parallel for
+      for(size_t i = 0; i < team.size(); ++i) {
+        ee::Specimen& s = team[i];
         s.brain_->reset();
         s.think(candidate, isPass, mc);
       }
 
-      std::cerr << round(team.stats_.averageFitness_) << "\t" << isPass << "\t" << candidate << std::endl;
-
       ee::Population newTeam = pool.epoch(team);
+      std::cerr << round(team.stats_.averageFitness_) << "\t" << isPass << "\t" << mc.probability(line) << '\t' << candidate << std::endl;
 
       for(ee::Specimen& s : team) {
         s.brain_->destroy();
@@ -135,12 +146,12 @@ int main(int argc, char** argv) {
       team = newTeam;
 
       if(cnt % 1000 == 0) {
-        std::ofstream os(popFile);
+        std::ofstream os(trainPopFile);
         write_population(team,os);
       }
       ++cnt;
     }
-    std::ofstream os(popFile);
+    std::ofstream os(runPopFile);
     write_population(team,os);
   }
 }

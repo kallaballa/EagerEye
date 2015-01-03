@@ -8,82 +8,111 @@
 namespace eagereye {
 
 BigramList make_bigram_list(const string& word) {
-  BigramList bl;
-  bool first = true;
-  char last;
-  string normalized = word;
-
-  for(char& c : normalized) {
-    c = std::tolower(c);
+  if(word.size() < 2) {
+    return BigramList();
   }
 
-  for (const char& c : normalized) {
-    if (first) {
-      first = false;
-    } else {
-      bl.push_back( { last, c });
-    }
-    last = c;
+  BigramList bl(word.size() - 1);
+
+  for (size_t i = 1; i < word.size(); ++i) {
+    bl[i - 1] = { word.at(i - 1), word.at(i) };
   }
 
   return bl;
 }
 
-MarkovChain::MarkovChain(const string& file, CharAcceptor ca) {
+void MarkovChain::learn(const string& file, CharAcceptor ca) {
   std::cerr << "training markov chain" << std::endl;
 
   if (acceptedChars_.empty()) {
     for (size_t i = 0; i < 256; ++i) {
       if (ca(i)) {
-        acceptedChars_.push_back((char)i);
+        acceptedChars_.push_back((uint8_t)i);
       }
     }
   }
 
-  for (char& i : acceptedChars_) {
-    (*this).insert({i, MarkovRow()});
-    for (char& j : acceptedChars_) {
-      (*this)[i].insert({j, 10.0});
+  for (uint8_t& i : acceptedChars_) {
+    for (uint8_t& j : acceptedChars_) {
+      (*this)[i][j] = 10.0;
     }
   }
 
   std::ifstream is(file);
   string line;
 
+  size_t cnt = 0;
   while (std::getline(is, line)) {
     for (Bigram& b : make_bigram_list(line)) {
       ++((*this)[b.first][b.second]);
     }
+    std::cerr << "\r" << ++cnt;
   }
 
-  for (char& i : acceptedChars_) {
+  //normalize
+  double maxRelativeProbability = 0;
+  for (uint8_t& i : acceptedChars_) {
     MarkovRow& row = (*this)[i];
 
     double sum = 0;
-    for (auto& p2 : row) {
-      sum += p2.second;
+    for (uint8_t& j : acceptedChars_) {
+      sum += row[j];
+      CHECK(row[j] > 0);
     }
 
-    CHECK(sum > 0);
-
-    for (char& j : acceptedChars_) {
-      double& count = row[j];
-      CHECK(count > 0);
-      count = log((double)count / (double)sum);
+    for (uint8_t& j : acceptedChars_) {
+        row[j] = row[j]/sum;
+        maxRelativeProbability = std::max(maxRelativeProbability, row[j]);
     }
   }
 
+  for (uint8_t& i : acceptedChars_) {
+    MarkovRow& row = (*this)[i];
+
+    for (uint8_t& j : acceptedChars_) {
+      row[j] /= maxRelativeProbability;
+      CHECK(row[j] >= 0.0 && row[j] <= 1.0);
+    }
+  }
 }
 
 double MarkovChain::probability(const string& word) {
-  double log_prob = 0.0;
-  size_t transition_cnt = 0;
+  std::unique_lock<std::mutex> lck(lookupMutex_);
+  double totalProb = 0.0;
+  size_t cnt = 0;
 
-  for (Bigram& b : make_bigram_list(word)) {
-    log_prob += (*this)[b.first][b.second];
-    ++transition_cnt;
+  for (const uint8_t& i : word) {
+    if(std::find(acceptedChars_.begin(), acceptedChars_.end(), i) == acceptedChars_.end()) {
+      return 0;
+    }
   }
 
-  return exp(log_prob / (double)(transition_cnt == 0.0 ? 1.0 : transition_cnt));
+  for (Bigram& b : make_bigram_list(word)) {
+    totalProb += (*this)[b.first][b.second];
+    ++cnt;
+  }
+
+  if(cnt == 0)
+    return 0;
+
+  return totalProb / (double)cnt;
+}
+
+void read_markov_chain(MarkovChain& mc, std::istream& is) {
+#ifndef _NO_SERIALIZE
+  boost::archive::binary_iarchive ia(is);
+  ia >> mc;
+#else
+  CHECK(false);
+#endif
+}
+
+void write_markov_chain(MarkovChain& mc, std::ostream& os) {
+#ifndef _NO_SERIALIZE
+  boost::archive::binary_oarchive oa(os);
+  oa << mc;
+#else
+  CHECK(false);
+#endif
 }
 } /* namespace eagereye */

@@ -8,13 +8,8 @@
 #include <cmath>
 #include <limits>
 #include <cctype>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-
 
 namespace eagereye {
-
-using namespace cv;
 
 Specimen::Specimen(Brain* brain) :
     brain_(brain),
@@ -41,73 +36,25 @@ WordStats make_word_stats(const std::string& word) {
 
   WordStats stats;
 
-  for(const char& c : word)
+  for(const uint8_t& c : word)
     stats.alpha += (isalpha(c) ? 1 : 0);
 
-  for(const char& c : word)
+  for(const uint8_t& c : word)
     stats.digit += (isdigit(c) ? 1 : 0);
 
-  for(const char& c : word)
+  for(const uint8_t& c : word)
     stats.upper += (isupper(c) ? 1 : 0);
 
-  for(const char& c : word)
+  for(const uint8_t& c : word)
     stats.blank += (isblank(c) ? 1 : 0);
 
-  for(const char& c : word)
+  for(const uint8_t& c : word)
     stats.punct += (ispunct(c) ? 1 : 0);
 
-  for(const char& c : word)
+  for(const uint8_t& c : word)
     stats.xdigit += (isxdigit(c) ? 1 : 0);
 
   return stats;
-}
-
-Mat make_mat(vector<double> v) {
-  Mat mat = Mat(Size(v.size(), 1), CV_64F);
-  size_t cnt = 0;
-  MatIterator_<double> it, end;
-
-  for( it = mat.begin<double>(), end = mat.end<double>(); it != end; ++it) {
-    *it = v[cnt++];
-  }
-
-  return mat;
-}
-
-vector <double> make_vector(Mat m) {
-  MatIterator_<double> it, end;
-  vector<double> result;
-  for( it = m.begin<double>(), end = m.end<double>(); it != end; ++it) {
-    result.push_back(*it);
-  }
-  return result;
-}
-
-
-vector<double> make_gradient(const string& word, size_t len) {
-  vector<double> vecWord;
-  for(const unsigned char& c : word) {
-    vecWord.push_back((double) c/127.0);
-  }
-
-  Mat matIn = make_mat(vecWord);
-  Mat matOut;
-  resize(matIn, matOut, Size(len, 1));
-  auto result = make_vector(matOut);
-/*
-  std::cerr << "vecWord:";
-  for (const double& d : vecWord) {
-    std::cerr << d << '\t';
-  }
-  std::cerr << std::endl;
-
-  std::cerr << "result:";
-  for (const double& d : result) {
-    std::cerr << d << '\t';
-  }
-  std::cerr << std::endl;*/
-
-  return result;
 }
 
 void Specimen::think(const std::string& candidate, bool isPass, MarkovChain& mc) {
@@ -131,18 +78,12 @@ void Specimen::think(const std::string& candidate, bool isPass, MarkovChain& mc)
   inputs.push_back(1.0 - (len / 64.0));
 
   for(size_t i = 0; i < inputs.size(); ++i) {
-/*    if(!(inputs[i] <= 1.0 && inputs[i] >= -1.0)) {
+    if(!(inputs[i] <= 1.0 && inputs[i] >= -1.0)) {
       std::cerr << inputs[i] << std::endl;
       CHECK(false);
-    }*/
+    }
     brain_->inputs_[cnt++] = inputs[i];
   }
-
-  /*auto grad = make_gradient(candidate, 64);
-
-  for(const double& d : grad) {
-    brain_->inputs_[cnt++] = d;
-  }*/
 
   brain_->run();
 
