@@ -132,7 +132,7 @@ int main(int argc, char** argv) {
         avgOut += s.brain_->outputs_[0];
       }
       avgOut /= team.size();
-      std::cout << round(avgOut) << "\t" << line << std::endl;
+      std::cout << (round(avgOut) > 0.0 ? 1.0 : -1.0) << "\t" << line << std::endl;
     }
   } else if(trainPopFile.size()) {
     std::cerr << "Run training" << std::endl;
