@@ -1,7 +1,7 @@
 CXX      := g++
 CXXFLAGS := -fopenmp -fno-strict-aliasing -std=c++0x -pedantic -Wall -I../fann/src/include 
 LDFLAGS  := -fopenmp -L/opt/local/lib -L../fann/src/
-LIBS     := -lm -lfann -lboost_regex
+LIBS     := -lm -lfann
 .PHONY: all release debian-release info debug clean debian-clean distclean 
 NVCC     := /usr/local/cuda/bin/nvcc
 NVCC_HOST_CXX := g++-4.6
