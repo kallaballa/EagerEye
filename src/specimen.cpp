@@ -30,29 +30,19 @@ struct WordStats {
   size_t xdigit = 0;
 };
 
-//FIXME
 WordStats make_word_stats(const std::string& word) {
   using namespace std;
 
   WordStats stats;
 
-  for(const uint8_t& c : word)
+  for(const uint8_t& c : word) {
     stats.alpha += (isalpha(c) ? 1 : 0);
-
-  for(const uint8_t& c : word)
     stats.digit += (isdigit(c) ? 1 : 0);
-
-  for(const uint8_t& c : word)
     stats.upper += (isupper(c) ? 1 : 0);
-
-  for(const uint8_t& c : word)
     stats.blank += (isblank(c) ? 1 : 0);
-
-  for(const uint8_t& c : word)
     stats.punct += (ispunct(c) ? 1 : 0);
-
-  for(const uint8_t& c : word)
     stats.xdigit += (isxdigit(c) ? 1 : 0);
+  }
 
   return stats;
 }

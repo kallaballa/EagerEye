@@ -4,6 +4,7 @@
 #include "markov_chain.hpp"
 
 #include <fstream>
+#include <boost/regex.hpp>
 
 #ifndef _NO_PROGRAM_OPTIONS
 #include <boost/program_options.hpp>
@@ -19,6 +20,24 @@ using std::string;
 using std::cerr;
 using std::endl;
 using std::vector;
+
+boost::regex EMAIL_REGEX("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[A-Za-z]{2,4}$",boost::regex_constants::icase | boost::regex_constants::egrep);
+boost::regex HTTP_URL_REGEX("http(s?):\\/\\/[^ \"\\(\\)\\<\\>]*",boost::regex_constants::icase | boost::regex_constants::egrep);
+
+bool filterMe(const string& word) {
+  if(word.empty() || word.size() >= 64)
+    return true;
+
+/*
+  if (boost::regex_match (word,EMAIL_REGEX))
+    return true;
+
+
+  if (boost::regex_match (word,HTTP_URL_REGEX))
+    return true;
+*/
+  return false;
+}
 
 int main(int argc, char** argv) {
   //command line parsing
@@ -85,7 +104,7 @@ int main(int argc, char** argv) {
   }
 
   if(!loadMarkovFile.size()) {
-    mc.learn("data/americanmix.txt", [](const char& c){ return (bool)c; });
+    mc.learn("data/humansample.txt");
     if(genMarkovFile.size()) {
       ofstream os(genMarkovFile);
       ee::write_markov_chain(mc, os);
@@ -102,11 +121,11 @@ int main(int argc, char** argv) {
     ee::read_population(0, team, is);
     string line;
     while (std::getline(std::cin, line)) {
-      if(line.empty() || line.size() >= 64)
+      if(filterMe(line))
         continue;
 
-        team[0].brain_->reset();
-        team[0].think(line, false, mc);
+      team[0].brain_->reset();
+      team[0].think(line, false, mc);
 
       std::cout << round(team[0].brain_->outputs_[0]) << "\t" << line << std::endl;
     }
@@ -124,7 +143,7 @@ int main(int argc, char** argv) {
 
       line.erase (0,2);
       string candidate = line;
-      if(candidate.empty() || candidate.size() >= 64)
+      if(filterMe(candidate))
         continue;
 
      // #pragma omp parallel for

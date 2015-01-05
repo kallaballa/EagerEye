@@ -39,7 +39,8 @@ public:
   typedef std::function<bool(uint8_t)> CharAcceptor;
 
   MarkovChain() {};
-  void learn(const string& file, CharAcceptor ca = [](const uint8_t& c){ return std::isprint(c);} );
+  void learn(const string& file);
+  void learn(std::istream& is);
   double probability(const string& word);
 
 #ifndef _NO_SERIALIZE
