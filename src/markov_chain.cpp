@@ -82,7 +82,7 @@ double MarkovChain::probability(const string& word) {
 
 void read_markov_chain(MarkovChain& mc, std::istream& is) {
 #ifndef _NO_SERIALIZE
-  boost::archive::binary_iarchive ia(is);
+  boost::archive::text_iarchive ia(is);
   ia >> mc;
 #else
   CHECK(false);
@@ -91,7 +91,7 @@ void read_markov_chain(MarkovChain& mc, std::istream& is) {
 
 void write_markov_chain(MarkovChain& mc, std::ostream& os) {
 #ifndef _NO_SERIALIZE
-  boost::archive::binary_oarchive oa(os);
+  boost::archive::text_oarchive oa(os);
   oa << mc;
 #else
   CHECK(false);

@@ -8,8 +8,8 @@
 
 #ifndef _NO_SERIALIZE
 #include <boost/serialization/vector.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #endif
 
 namespace eagereye {
@@ -116,7 +116,7 @@ inline void scale_population(Population& team, size_t size) {
 
 inline void read_population(size_t teamID, Population& team, istream& is) {
 #ifndef _NO_SERIALIZE
-  boost::archive::binary_iarchive ia(is);
+  boost::archive::text_iarchive ia(is);
   ia >> team;
 
   scale_population(team, team.layout_.size_);
@@ -127,7 +127,7 @@ inline void read_population(size_t teamID, Population& team, istream& is) {
 
 inline void write_population(Population& team, ostream& os) {
 #ifndef _NO_SERIALIZE
-  boost::archive::binary_oarchive oa(os);
+  boost::archive::text_oarchive oa(os);
   oa << team;
 #else
   CHECK(false);
