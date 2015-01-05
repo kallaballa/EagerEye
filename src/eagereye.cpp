@@ -4,7 +4,7 @@
 #include "markov_chain.hpp"
 
 #include <fstream>
-#include <boost/regex.hpp>
+//#include <boost/regex.hpp>
 
 #ifndef _NO_PROGRAM_OPTIONS
 #include <boost/program_options.hpp>
@@ -21,9 +21,9 @@ using std::cerr;
 using std::endl;
 using std::vector;
 
-boost::regex EMAIL_REGEX("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[A-Za-z]{2,4}$",boost::regex_constants::icase | boost::regex_constants::egrep);
+/*boost::regex EMAIL_REGEX("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[A-Za-z]{2,4}$",boost::regex_constants::icase | boost::regex_constants::egrep);
 boost::regex HTTP_URL_REGEX("http(s?):\\/\\/[^ \"\\(\\)\\<\\>]*",boost::regex_constants::icase | boost::regex_constants::egrep);
-
+*/
 bool filterMe(const string& word) {
   if(word.empty() || word.size() >= 64)
     return true;
