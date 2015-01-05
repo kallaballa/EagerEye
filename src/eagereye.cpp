@@ -124,10 +124,15 @@ int main(int argc, char** argv) {
       if(filterMe(line))
         continue;
 
-      team[0].brain_->reset();
-      team[0].think(line, false, mc);
-
-      std::cout << round(team[0].brain_->outputs_[0]) << "\t" << line << std::endl;
+      double avgOut = 0;
+      for(size_t i = 0; i < team.size(); ++i) {
+        ee::Specimen& s = team[i];
+        s.brain_->reset();
+        s.think(line, false, mc);
+        avgOut += s.brain_->outputs_[0];
+      }
+      avgOut /= team.size();
+      std::cout << round(avgOut) << "\t" << line << std::endl;
     }
   } else if(trainPopFile.size()) {
     std::cerr << "Run training" << std::endl;
