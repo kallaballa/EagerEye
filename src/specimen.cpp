@@ -79,9 +79,11 @@ void Specimen::think(const std::string& candidate, bool isPass, MarkovChain& mc)
 
 	double expected = isPass ? 1.0 : -1.0;
 	fitness_ = 2.0 - std::fabs(expected - brain_->outputs_[0]);
-	if(!isPass && round(brain_->outputs_[0]) == 1.0) {
-	  fitness_ /= 2;
-	}
+	if(isPass && round(fitness_) == 2.0) {
+	  fitness_ *= 2;
+	} else if(!isPass && round(brain_->outputs_[0]) == 1.0) {
+    fitness_ /= 2;
+  }
 }
 
 Specimen Specimen::makeChild() const {
