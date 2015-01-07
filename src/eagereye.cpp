@@ -3,7 +3,6 @@
 #include "error.hpp"
 #include "markov_chain.hpp"
 #include <boost/locale.hpp>
-
 #include <fstream>
 //#include <boost/regex.hpp>
 
@@ -82,7 +81,7 @@ int main(int argc, char** argv) {
   ee::ErrorHandler::init(ee::default_error_delegate);
   locale::global(locale("en_US.UTF-8"));
   std::locale loc = boost::locale::generator().generate("en_US.UTF-8");
-  std::wcin.imbue(loc);
+  //std::wcin.imbue(loc);
   std::wcout.imbue(loc);
 
   CHECK(! (runPopFile.size() && trainPopFile.size()));
@@ -109,7 +108,7 @@ int main(int argc, char** argv) {
   }
 
   if(!loadMarkovFile.size()) {
-    mc.learn("data/humansample.txt");
+    mc.learn(std::wcin);
     if(genMarkovFile.size()) {
       ofstream os(genMarkovFile);
       ee::write_markov_chain(mc, os);

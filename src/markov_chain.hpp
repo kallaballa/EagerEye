@@ -39,7 +39,6 @@ public:
   typedef std::function<bool(wchar_t)> CharAcceptor;
 
   MarkovChain() {};
-  void learn(const std::string& file);
   void learn(std::wistream& is);
   double probability(const wstring& word);
 

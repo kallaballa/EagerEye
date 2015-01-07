@@ -22,13 +22,8 @@ BigramList make_bigram_list(const wstring& word) {
   return bl;
 }
 
-void MarkovChain::learn(const std::string& file) {
-  std::wifstream is(file);
-  learn(is);
-}
-
 void MarkovChain::learn(std::wistream& is) {
-  std::cerr << "training markov chain" << std::endl;
+  std::cerr << "learning markov chain" << std::endl;
 
   wstring line;
 
