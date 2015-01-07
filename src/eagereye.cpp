@@ -131,7 +131,7 @@ int main(int argc, char** argv) {
       team[0].brain_->reset();
       team[0].think(line, false, mc);
 
-      std::wcout << round(team[0].brain_->outputs_[0]) << "\t" << line << std::endl;
+      std::wcout << (team[0].brain_->outputs_[0] == 1.0 ? 1 : 0) << "\t" << line << std::endl;
     }
   } else if(trainPopFile.size()) {
     std::cerr << "Run training" << std::endl;
