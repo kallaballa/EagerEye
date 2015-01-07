@@ -37,7 +37,7 @@ public:
 
 	void setBrain(Brain* b);
 
-	void think(const std::string& candidate, bool isPass, MarkovChain& mc);
+	void think(const std::wstring& candidate, bool isPass, MarkovChain& mc);
 	Specimen makeChild() const;
 	Specimen clone() const;
 	bool operator<(const Specimen& other) const;

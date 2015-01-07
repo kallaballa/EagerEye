@@ -2,6 +2,7 @@
 #include "genetic.hpp"
 #include "error.hpp"
 #include "markov_chain.hpp"
+#include <boost/locale.hpp>
 
 #include <fstream>
 //#include <boost/regex.hpp>
@@ -16,7 +17,7 @@ namespace po = boost::program_options;
 
 namespace ee = eagereye;
 
-using std::string;
+using std::wstring;
 using std::cerr;
 using std::endl;
 using std::vector;
@@ -24,7 +25,7 @@ using std::vector;
 /*boost::regex EMAIL_REGEX("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[A-Za-z]{2,4}$",boost::regex_constants::icase | boost::regex_constants::egrep);
 boost::regex HTTP_URL_REGEX("http(s?):\\/\\/[^ \"\\(\\)\\<\\>]*",boost::regex_constants::icase | boost::regex_constants::egrep);
 */
-bool filterMe(const string& word) {
+bool filterMe(const wstring& word) {
   if(word.empty() || word.size() >= 64)
     return true;
 
@@ -79,6 +80,10 @@ int main(int argc, char** argv) {
 
 #endif
   ee::ErrorHandler::init(ee::default_error_delegate);
+  locale::global(locale("en_US.UTF-8"));
+  std::locale loc = boost::locale::generator().generate("en_US.UTF-8");
+  std::wcin.imbue(loc);
+  std::wcout.imbue(loc);
 
   CHECK(! (runPopFile.size() && trainPopFile.size()));
   CHECK(! (genMarkovFile.size() && loadMarkovFile.size()));
@@ -96,10 +101,10 @@ int main(int argc, char** argv) {
     std::cerr << "run markov chain" << std::endl;
     ifstream is(runMarkovFile);
     ee::read_markov_chain(mc, is);
-    string line;
+    wstring line;
 
-    while(std::getline(std::cin, line)) {
-      std::cerr << mc.probability(line) << '\t' << line << std::endl;
+    while(std::getline(std::wcin, line)) {
+      std::wcerr << mc.probability(line) << '\t' << line << std::endl;
     }
   }
 
@@ -119,22 +124,22 @@ int main(int argc, char** argv) {
   if (runPopFile.size()) {
     std::ifstream is(runPopFile);
     ee::read_population(0, team, is);
-    string line;
-    while (std::getline(std::cin, line)) {
+    wstring line;
+    while (std::getline(std::wcin, line)) {
       if(filterMe(line))
         continue;
 
       team[0].brain_->reset();
       team[0].think(line, false, mc);
 
-      std::cout << round(team[0].brain_->outputs_[0]) << "\t" << line << std::endl;
+      std::wcout << round(team[0].brain_->outputs_[0]) << "\t" << line << std::endl;
     }
   } else if(trainPopFile.size()) {
     std::cerr << "Run training" << std::endl;
     team = ee::make_population(pl);
-    string line;
+    wstring line;
     size_t cnt = 0;
-    while (std::getline(std::cin, line)) {
+    while (std::getline(std::wcin, line)) {
       bool isPass = false;
       if(line.at(0) == '1')
         isPass = true;
@@ -142,7 +147,7 @@ int main(int argc, char** argv) {
         CHECK(false);
 
       line.erase (0,2);
-      string candidate = line;
+      wstring candidate = line;
       if(filterMe(candidate))
         continue;
 
@@ -154,7 +159,7 @@ int main(int argc, char** argv) {
       }
 
       ee::Population newTeam = pool.epoch(team);
-      std::cerr << round(team.stats_.averageFitness_) << "\t" << isPass << "\t" << mc.probability(line) << '\t' << candidate << std::endl;
+      std::wcerr << round(team.stats_.averageFitness_) << "\t" << isPass << "\t" << mc.probability(line) << '\t' << candidate << std::endl;
 
       for(ee::Specimen& s : team) {
         s.brain_->destroy();

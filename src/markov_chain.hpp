@@ -11,44 +11,44 @@
 #ifndef _NO_SERIALIZE
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/map.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 #endif
 
 namespace eagereye {
 
 using std::map;
-using std::string;
+using std::wstring;
 using std::vector;
 
-typedef map<uint8_t, double> MarkovRow;
-typedef std::pair<uint8_t, uint8_t> Bigram;
-typedef vector<std::pair<uint8_t, uint8_t>> BigramList;
+typedef map<wchar_t, double> MarkovRow;
+typedef std::pair<wchar_t, wchar_t> Bigram;
+typedef vector<std::pair<wchar_t, wchar_t>> BigramList;
 
-BigramList make_bigram_list(const string& word);
+BigramList make_bigram_list(const wstring& word);
 
-class MarkovChain : public map<uint8_t, MarkovRow> {
+class MarkovChain : public map<wchar_t, MarkovRow> {
 private:
 #ifndef _NO_SERIALIZE
     friend class boost::serialization::access;
 #endif
-  vector<uint8_t> acceptedChars_;
+  vector<wchar_t> acceptedChars_;
   std::mutex lookupMutex_;
   double maxProbability_;
 public:
-  typedef std::function<bool(uint8_t)> CharAcceptor;
+  typedef std::function<bool(wchar_t)> CharAcceptor;
 
   MarkovChain() {};
-  void learn(const string& file);
-  void learn(std::istream& is);
-  double probability(const string& word);
+  void learn(const std::string& file);
+  void learn(std::wistream& is);
+  double probability(const wstring& word);
 
 #ifndef _NO_SERIALIZE
   template<class Archive>
   void serialize(Archive & ar, const unsigned int version) {
     ar & acceptedChars_;
     ar & maxProbability_;
-    ar & boost::serialization::base_object<map<uint8_t,MarkovRow>>(*this);
+    ar & boost::serialization::base_object<map<wchar_t,MarkovRow>>(*this);
   }
 #endif
 };

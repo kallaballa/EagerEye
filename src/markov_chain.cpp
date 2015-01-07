@@ -4,10 +4,11 @@
 #include <numeric>
 #include <algorithm>
 #include <iostream>
+#include <string>
 
 namespace eagereye {
 
-BigramList make_bigram_list(const string& word) {
+BigramList make_bigram_list(const wstring& word) {
   if(word.size() < 2) {
     return BigramList();
   }
@@ -21,15 +22,15 @@ BigramList make_bigram_list(const string& word) {
   return bl;
 }
 
-void MarkovChain::learn(const string& file) {
-  std::ifstream is(file);
+void MarkovChain::learn(const std::string& file) {
+  std::wifstream is(file);
   learn(is);
 }
 
-void MarkovChain::learn(std::istream& is) {
+void MarkovChain::learn(std::wistream& is) {
   std::cerr << "training markov chain" << std::endl;
 
-  string line;
+  wstring line;
 
   size_t cnt = 0;
   while (std::getline(is, line)) {
@@ -64,7 +65,7 @@ void MarkovChain::learn(std::istream& is) {
 }
 
 
-double MarkovChain::probability(const string& word) {
+double MarkovChain::probability(const wstring& word) {
   std::unique_lock<std::mutex> lck(lookupMutex_);
   double totalProb = 0.0;
   size_t cnt = 0;
@@ -82,7 +83,7 @@ double MarkovChain::probability(const string& word) {
 
 void read_markov_chain(MarkovChain& mc, std::istream& is) {
 #ifndef _NO_SERIALIZE
-  boost::archive::text_iarchive ia(is);
+  boost::archive::binary_iarchive ia(is);
   ia >> mc;
 #else
   CHECK(false);
@@ -91,7 +92,7 @@ void read_markov_chain(MarkovChain& mc, std::istream& is) {
 
 void write_markov_chain(MarkovChain& mc, std::ostream& os) {
 #ifndef _NO_SERIALIZE
-  boost::archive::text_oarchive oa(os);
+  boost::archive::binary_oarchive oa(os);
   oa << mc;
 #else
   CHECK(false);

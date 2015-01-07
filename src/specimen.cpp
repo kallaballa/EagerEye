@@ -30,7 +30,7 @@ struct WordStats {
   size_t xdigit = 0;
 };
 
-WordStats make_word_stats(const std::string& word) {
+WordStats make_word_stats(const std::wstring& word) {
   using namespace std;
 
   WordStats stats;
@@ -47,7 +47,7 @@ WordStats make_word_stats(const std::string& word) {
   return stats;
 }
 
-void Specimen::think(const std::string& candidate, bool isPass, MarkovChain& mc) {
+void Specimen::think(const std::wstring& candidate, bool isPass, MarkovChain& mc) {
   CHECK(candidate.size() < 64);
   CHECK(brain_->layout_.numOutputs == 1);
   CHECK(!candidate.empty());
@@ -78,12 +78,7 @@ void Specimen::think(const std::string& candidate, bool isPass, MarkovChain& mc)
   brain_->run();
 
 	double expected = isPass ? 1.0 : -1.0;
-	fitness_ = 3.0 - std::fabs(expected - brain_->outputs_[0]);
-	if(isPass && round(brain_->outputs_[0]) == 1.0) {
-	  fitness_ *= 2;
-	} else if(!isPass && round(brain_->outputs_[0]) == 1.0) {
-    fitness_ /= 2;
-  }
+	fitness_ = 2.0 - std::fabs(expected - brain_->outputs_[0]);
 }
 
 Specimen Specimen::makeChild() const {
