@@ -6,7 +6,7 @@
 #include <chrono>
 #include <string>
 
-namespace eagereye {
+namespace phokis {
 
 typedef double Coord;
 using std::vector;

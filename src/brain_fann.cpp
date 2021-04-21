@@ -5,7 +5,7 @@
 #include <limits>
 #include <cmath>
 
-namespace eagereye {
+namespace phokis {
 
 BrainFann::BrainFann(const BrainFann& other): BasicBrain<fann_type>(other), nn_(other.nn_) {
 }

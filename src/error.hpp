@@ -8,7 +8,7 @@
 #ifndef ERROR_HPP_
 #define ERROR_HPP_
 
-namespace eagereye {
+namespace phokis {
 
 void print_stacktrace(FILE *out = stderr, unsigned int max_frames = 63);
 
@@ -42,8 +42,8 @@ inline void error(const std::string& msg) {
 }
 
 #ifndef NDEBUG
-#define CHECK_MSG(exp, msg) if(!(exp)) eagereye::error(std::string(msg) + std::string(": ") + std::string(#exp));
-#define CHECK(exp) if(!(exp)) eagereye::error(std::string("check failed: ") + std::string(#exp) + std::string(" (") + std::string(__FILE__) + std::string(":") + std::to_string(__LINE__) + std::string(")"))
+#define CHECK_MSG(exp, msg) if(!(exp)) phokis::error(std::string(msg) + std::string(": ") + std::string(#exp));
+#define CHECK(exp) if(!(exp)) phokis::error(std::string("check failed: ") + std::string(#exp) + std::string(" (") + std::string(__FILE__) + std::string(":") + std::to_string(__LINE__) + std::string(")"))
 #else
 #define CHECK_MSG(exp, msg) ;
 #define CHECK(exp) if(!(exp)) ;

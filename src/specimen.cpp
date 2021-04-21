@@ -9,7 +9,7 @@
 #include <limits>
 #include <cctype>
 
-namespace eagereye {
+namespace phokis {
 
 Specimen::Specimen(Brain* brain) :
     brain_(brain),
@@ -21,64 +21,31 @@ void Specimen::setBrain(Brain* b) {
 	brain_ = b;
 }
 
-struct WordStats {
-  size_t alpha = 0;
-  size_t digit = 0;
-  size_t upper = 0;
-  size_t blank = 0;
-  size_t punct = 0;
-  size_t xdigit = 0;
-};
 
-WordStats make_word_stats(const std::wstring& word) {
-  using namespace std;
+Action Specimen::think(const fann_type* data) {
+	CHECK(brain_->layout_.numOutputs == 2);
 
-  WordStats stats;
+	for (size_t i = 0; i < brain_->layout_.numInputs_; ++i) {
+		const fann_type& v = data[i];
+		if (!(v <= 1.0 && v >= -1.0)) {
+			std::cerr << v << std::endl;
+			CHECK(false);
+		}
+		brain_->inputs_[i] = v;
+	}
 
-  for(const uint8_t& c : word) {
-    stats.alpha += (isalpha(c) ? 1 : 0);
-    stats.digit += (isdigit(c) ? 1 : 0);
-    stats.upper += (isupper(c) ? 1 : 0);
-    stats.blank += (isblank(c) ? 1 : 0);
-    stats.punct += (ispunct(c) ? 1 : 0);
-    stats.xdigit += (isxdigit(c) ? 1 : 0);
-  }
+	brain_->run();
 
-  return stats;
-}
+	if (brain_->outputs_[0] && brain_->outputs_[1]) {
+		return PASS;
+	} else if (brain_->outputs_[0]) {
+		return BUY;
+	} else if (brain_->outputs_[1]) {
+		return SELL;
+	} else {
+		return PASS;
+	}
 
-void Specimen::think(const std::wstring& candidate, bool isPass, MarkovChain& mc) {
-  CHECK(candidate.size() < 64);
-  CHECK(brain_->layout_.numOutputs == 1);
-  CHECK(!candidate.empty());
-  size_t cnt = 0;
-
-
-  WordStats stats = make_word_stats(candidate);
-  double len = candidate.size();
-  std::vector<double> inputs;
-  inputs.push_back(mc.probability(candidate));
-
-  inputs.push_back(1.0 - (((double)stats.alpha / len) * 2.0));
-  inputs.push_back(1.0 - (((double)stats.digit / len) * 2.0));
-  inputs.push_back(1.0 - (((double)stats.upper / len) * 2.0));
-  inputs.push_back(1.0 - (((double)stats.blank / len) * 2.0));
-  inputs.push_back(1.0 - (((double)stats.punct / len) * 2.0));
-  inputs.push_back(1.0 - (((double)stats.xdigit / len) * 2.0));
-  inputs.push_back(1.0 - (len / 64.0));
-
-  for(size_t i = 0; i < inputs.size(); ++i) {
-    if(!(inputs[i] <= 1.0 && inputs[i] >= -1.0)) {
-      std::cerr << inputs[i] << std::endl;
-      CHECK(false);
-    }
-    brain_->inputs_[cnt++] = inputs[i];
-  }
-
-  brain_->run();
-
-	double expected = isPass ? 1.0 : -1.0;
-	fitness_ = 2.0 - std::fabs(expected - brain_->outputs_[0]);
 }
 
 Specimen Specimen::makeChild() const {

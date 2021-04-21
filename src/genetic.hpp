@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace eagereye {
+namespace phokis {
 
 struct BattleFieldLayout;
 

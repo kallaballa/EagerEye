@@ -13,7 +13,7 @@
 #include <cxxabi.h>
 #endif
 
-namespace eagereye {
+namespace phokis {
 
 std::function<void(const std::string& msg)> ErrorHandler::delegate_;
 bool ErrorHandler::initialized_ = false;

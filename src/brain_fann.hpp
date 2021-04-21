@@ -13,7 +13,7 @@
 #include <boost/serialization/deque.hpp>
 #endif
 
-namespace eagereye {
+namespace phokis {
 
 class Specimen;
 class Population;

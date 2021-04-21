@@ -12,7 +12,7 @@
 #include <boost/archive/binary_oarchive.hpp>
 #endif
 
-namespace eagereye {
+namespace phokis {
 using std::vector;
 using std::istream;
 using std::ostream;

@@ -1,10 +1,3 @@
-/*
- * util.cpp
- *
- *  Created on: Mar 2, 2014
- *      Author: elchaschab
- */
-
 #include "util.hpp"
 #include "specimen.hpp"
 #include "population.hpp"
@@ -12,7 +5,7 @@
 #include "brain_fann.hpp"
 #include <cstdlib>
 
-namespace eagereye {
+namespace phokis {
 
 typedef BrainFann Brain;
 typedef double Coord;
@@ -52,4 +45,4 @@ Coord fRand(Coord fMin, Coord fMax)
     return fMin + f * (fMax - fMin);
 }
 
-} /* namespace neurocid */
+} /* namespace phokis */

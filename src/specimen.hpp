@@ -4,17 +4,22 @@
 #include <cstring>
 #include <iostream>
 #include "brain_fann.hpp"
-#include "markov_chain.hpp"
 
 #ifndef _NO_SERIALIZE
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #endif
 
-namespace eagereye {
+namespace phokis {
 
 typedef BrainFann Brain;
 using std::numeric_limits;
+
+enum Action {
+	BUY,
+	SELL,
+	PASS
+};
 
 class Specimen {
 #ifndef _NO_SERIALIZE
@@ -37,7 +42,7 @@ public:
 
 	void setBrain(Brain* b);
 
-	void think(const std::wstring& candidate, bool isPass, MarkovChain& mc);
+	Action think(const fann_type* data);
 	Specimen makeChild() const;
 	Specimen clone() const;
 	bool operator<(const Specimen& other) const;

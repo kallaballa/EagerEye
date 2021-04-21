@@ -6,7 +6,7 @@
 #include <iostream>
 #include <set>
 
-namespace eagereye {
+namespace phokis {
 
 GeneticLayout make_default_genetic_layout() {
   return {

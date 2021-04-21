@@ -10,7 +10,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #endif
 
-namespace eagereye {
+namespace phokis {
 
 struct BrainLayout  {
 #ifndef _NO_SERIALIZE
@@ -40,16 +40,17 @@ template<typename Tweight> class BasicBrain {
 	friend class boost::serialization::access;
 #endif
 public:
+	typedef Tweight weight_t;
 	bool destroyed_ = false;
 	bool initialized_ = false;
 	BrainLayout  layout_;
-	Tweight* inputs_ = NULL;
-  Tweight* outputs_ = NULL;
+	weight_t* inputs_ = NULL;
+	weight_t* outputs_ = NULL;
 
   BasicBrain() {
 	}
 
-	void initialize(BrainLayout layout, Tweight* weight = NULL) {
+	void initialize(BrainLayout layout, weight_t* weight = NULL) {
 	  outputs_ = new Tweight[layout.numOutputs];
 	  layout_ = layout;
 		inputs_ = NULL;
